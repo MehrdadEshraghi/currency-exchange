@@ -7,6 +7,7 @@ import { CurrencyService } from "./currency.service";
 @Module({
   imports: [MongooseModule.forFeature([{ name: "Currency", schema: CurrencySchema }])],
   controllers: [CurrencyController],
-  providers: [CurrencyService]
+  providers: [CurrencyService],
+  exports: [CurrencyService]
 })
 export class CurrencyModule {}

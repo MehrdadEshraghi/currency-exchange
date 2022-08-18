@@ -1,15 +1,16 @@
 import * as mongoose from 'mongoose';
-import { CurrencySchema } from 'src/currency/currency.model';
-import { ObjectId } from 'mongoose';
+
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 export const ExchangeRateSchema = new mongoose.Schema({
-  sourceCurrency: CurrencySchema,
-  targetCurrency: CurrencySchema,
+  sourceCurrency: { type: ObjectId, ref: 'Currency' },
+  targetCurrency: { type: ObjectId, ref: 'Currency' },
   date: { type: Date, default: new Date }
 });
 
-export interface Currency extends mongoose.Document {
-  sourceCurrency: ObjectId;
-  targetCurrency: ObjectId;
+
+export interface ExchangeRate extends mongoose.Document {
+  sourceCurrency: string;
+  targetCurrency: string;
   date: Date
 };
