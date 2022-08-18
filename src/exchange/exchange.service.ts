@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { CurrencyService } from "src/currency/currency.service";
-import { CreateExchangeRateDto } from "./dto";
+import { CreateExchangeRateDto, GetExchangeRateDto } from "./dto";
 import { ExchangeRate } from "./exchangeRate.model";
 
 @Injectable()
@@ -13,20 +13,7 @@ export class ExchangeService {
   ) {}
 
   async addExchangeRate(exchangeRate: CreateExchangeRateDto): Promise<string> {
-    const doc = await this.currencyService.getCurrencies([exchangeRate.sourceCurrency, exchangeRate.targetCurrency]);
-
-    if(doc.length < 2) {
-      throw new BadRequestException();
-    }
-
-    let sourceCurrency: string, targetCurrency: string;
-    if(doc[0].id === exchangeRate.sourceCurrency) {
-      sourceCurrency = doc[0].id;
-      targetCurrency = doc[1].id;
-    } else {
-      sourceCurrency = doc[1].id;
-      targetCurrency = doc[0].id;
-    }
+    const [sourceCurrency, targetCurrency] = await this.getCurrencyIds(exchangeRate.sourceCurrency, exchangeRate.targetCurrency);
 
     exchangeRate.sourceCurrency = sourceCurrency;
     exchangeRate.targetCurrency = targetCurrency;
@@ -34,5 +21,40 @@ export class ExchangeService {
     const newExchangeRate = new this.exchangeRateModel({...exchangeRate});
     await newExchangeRate.save();
     return newExchangeRate.id;
-  }  
+  }
+
+  async getExchangeRate(query: GetExchangeRateDto):Promise<number> {
+    const [sourceCurrency, targetCurrency] = await this.getCurrencyIds(query.source, query.target);
+    const filter = {
+      sourceCurrency,
+      targetCurrency,
+      date: query.date,
+    }
+    const doc = await this.exchangeRateModel.findOne(filter, { exchangeRate: 1 });
+
+    if(!doc) {
+      throw new NotFoundException();
+    }
+    
+    return doc.exchangeRate;
+  }
+
+  private async getCurrencyIds(source: string, target: string): Promise<[string, string]> {
+    const doc = await this.currencyService.getCurrencies([source, target]);
+
+    if(doc.length !== 2) {
+      throw new BadRequestException();
+    }
+
+    let sourceCurrency: string, targetCurrency: string;
+    if(doc[0].name === source) {
+      sourceCurrency = doc[0].id;
+      targetCurrency = doc[1].id;
+    } else {
+      sourceCurrency = doc[1].id;
+      targetCurrency = doc[0].id;
+    }
+
+    return [sourceCurrency, targetCurrency];
+  }
 }
