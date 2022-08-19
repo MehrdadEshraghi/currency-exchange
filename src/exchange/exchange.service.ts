@@ -19,7 +19,7 @@ export class ExchangeService {
     exchangeRate.sourceCurrency = sourceCurrency;
     exchangeRate.targetCurrency = targetCurrency;
 
-    const newExchangeRate = new this.exchangeRateModel({...exchangeRate});
+    const newExchangeRate = new this.exchangeRateModel({...exchangeRate, date: undefined});
     await newExchangeRate.save();
     return newExchangeRate.id;
   }
