@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
@@ -7,8 +8,12 @@ export const CurrencySchema = new mongoose.Schema({
   symbol: { type: String, required: true },
 });
 
-export interface Currency extends mongoose.Document {
+export class Currency {
   _id: typeof ObjectId;
+
+  @ApiProperty({ example: 'USD', description: 'The ISO name of the currency' })
   name: string;
+
+  @ApiProperty({ example: '$', description: 'The symbol of the currency' })
   symbol: string;
 };

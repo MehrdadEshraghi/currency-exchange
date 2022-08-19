@@ -2,13 +2,17 @@ import { Body, Controller, Get, InternalServerErrorException, NotFoundException,
 import { CurrencyService } from "./currency.service";
 import { CreateCurrencyDto } from "./dto";
 import { ConflictException } from "@nestjs/common";
-import {Currency} from './currency.model'
+import { Currency } from './currency.model';
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 
 @Controller('currency')
+@ApiTags('Currencies')
 export class CurrencyController {
   constructor(private readonly currencyService: CurrencyService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create currency' })
+  @ApiResponse({ status: 200, type: String, description: 'The new currency id' })
   async addCurrency(@Body() newCurrency: CreateCurrencyDto): Promise<string> {
     try {
       return await this.currencyService.addCurrency(newCurrency);
@@ -21,6 +25,8 @@ export class CurrencyController {
   }
 
   @Get()
+  @ApiOperation({summary: 'Find currencies'})
+  @ApiResponse({ status: 200, description: 'The found records', type: Currency})
   async getCurrencies(@Query() query: { names: string }): Promise<Currency[]> {
     try {
       return await this.currencyService.getCurrencies(query.names ? JSON.parse(query.names) : []);
