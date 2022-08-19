@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Get, NotFoundException, Post, Query } from "@nestjs/common";
 import { CreateExchangeRateDto, GetExchangeRateDto } from "./dto";
+import { ExchangeCurrencyDto } from "./dto/exchange-currency.dto";
 import { ExchangeService } from "./exchange.service";
-import { ExchangeRate } from "./exchangeRate.model";
 
 @Controller('exchange')
 export class ExchangeController {
@@ -20,6 +20,15 @@ export class ExchangeController {
   async getExchangeRate(@Query() query: GetExchangeRateDto): Promise<number> {
     try {
       return await this.exchangeService.getExchangeRate(query);
+    } catch(error) {
+      throw new NotFoundException();
+    }
+  }
+
+  @Get()
+  async exchangeCurrency(@Query() query: ExchangeCurrencyDto) {
+    try {
+      return await this.exchangeService.exchangeCurrency(query);
     } catch(error) {
       throw new NotFoundException();
     }

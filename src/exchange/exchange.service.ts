@@ -3,6 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { CurrencyService } from "src/currency/currency.service";
 import { CreateExchangeRateDto, GetExchangeRateDto } from "./dto";
+import { ExchangeCurrencyDto } from "./dto/exchange-currency.dto";
 import { ExchangeRate } from "./exchangeRate.model";
 
 @Injectable()
@@ -23,7 +24,7 @@ export class ExchangeService {
     return newExchangeRate.id;
   }
 
-  async getExchangeRate(query: GetExchangeRateDto):Promise<number> {
+  async getExchangeRate(query: GetExchangeRateDto) {
     const [sourceCurrency, targetCurrency] = await this.getCurrencyIds(query.source, query.target);
     const filter = {
       sourceCurrency,
@@ -37,6 +38,14 @@ export class ExchangeService {
     }
     
     return doc.exchangeRate;
+  }
+
+  async exchangeCurrency(query: ExchangeCurrencyDto) {
+    const rate = await this.getExchangeRate(query);
+    if(!rate) {
+      throw new NotFoundException();
+    }
+    return rate * query.amount;
   }
 
   private async getCurrencyIds(source: string, target: string): Promise<[string, string]> {
