@@ -1,7 +1,6 @@
 import { Body, Controller, Get, InternalServerErrorException, NotFoundException, Post, Query } from "@nestjs/common";
 import { CurrencyService } from "./currency.service";
 import { CreateCurrencyDto } from "./dto";
-import { ConflictException } from "@nestjs/common";
 import { Currency } from './currency.model';
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 
@@ -17,10 +16,7 @@ export class CurrencyController {
     try {
       return await this.currencyService.addCurrency(newCurrency);
     } catch(error) {
-      if(error.code === 11000) {
-        throw new ConflictException('An attempt was made to create an object that already exists');
-      }
-      throw new InternalServerErrorException();
+      return error.response;
     } 
   }
 
